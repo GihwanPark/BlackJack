@@ -85,9 +85,15 @@
                         break;
                     }
                     case "HIT" : {
+                        str = "<div class='col-6'>";
+                        str += "<div class='alert alert-warning'>";
+                        str += "<b>" + "##Dealer : " + msg + "</b>";
+                        str += "</div></div>";
+                        $("#chatArea").append(str);
+                        scrollToBottom();
+
                         break;
                     }
-
                     case "STOP" : {
                         break;
                     }
