@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" http-equiv="Content-Type">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>BlackJack</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+
+        <div class="container">
+            <div class="col-6">
+                <h1>[[${room.name}]]</h1>
+            </div>
+            <div>
+                <div id="msgArea" class="col"></div>
+                 <div id = "chatArea" style="overflow-y: scroll; height: 300px">
+
+                 </div>
+                <div class="col-6">
+                    <div class="input-group mb-3">
+                        <input type="text" id="msg" class="form-control">
+                        <div class="input-group-append">
+                            <button  class="btn btn-success" type="button" id="button-send">전송</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6"></div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    </th:block>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<script th:inline="javascript">
+    $(document).ready(function(){
+
+        var roomName = [[${room.name}]];
+        var roomId = [[${room.roomId}]];
+        var username = [[${playerList}]];
+
+        console.log(roomName + ", " + roomId + ", " + username);
+
+        var sockJs = new SockJS("/stomp/blackjack");
+        //1. SockJS를 내부에 들고있는 stomp를 내어줌
+        var stomp = Stomp.over(sockJs);
+
+        //2. connection이 맺어지면 실행
+        stomp.connect({}, function (){
+            console.log("STOMP Connection")
+
+            //4. subscribe(path, callback)으로 메세지를 받을 수 있음
+            stomp.subscribe("/sub/blackjack/room/" + roomId, function (chat) {
+                var content = JSON.parse(chat.body);
+
+                var writer = content.writer;
+                var str = '';
+
+                if(writer === username){
+                    str = "<div class='col-6'>";
+                    str += "<div class='alert alert-secondary'>";
+                    str += "<b>" + writer + " : " + message + "</b>";
+                    str += "</div></div>";
+                    $("#msgArea").append(str);
+                }
+                else{
+                    str = "<div class='col-6'>";
+                    str += "<div class='alert alert-warning'>";
+                    str += "<b>" + writer + " : " + message + "</b>";
+                    str += "</div></div>";
+                    $("#msgArea").append(str);
+                }
+
+                $("#msgArea").append(str);
+            });
+
+            //3. send(path, header, message)로 메세지를 보낼 수 있음
+            stomp.send('/pub/blackjack/enter', {}, JSON.stringify({roomId: roomId, writer: username}))
+        });
+
+        $("#button-send").on("click", function(e){
+            var msg = document.getElementById("msg");
+
+            console.log(username + ":" + msg.value);
+            stomp.send('/pub/blackjack/message', {}, JSON.stringify({roomId: roomId, message: msg.value, writer: username}));
+            msg.value = '';
+        });
+    });
+</script>

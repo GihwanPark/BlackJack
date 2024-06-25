@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<!--th:each="player : ${playerList}"-->
+<body>
+<label><span th:text="${player.getName()}">Player</span></label>
+<label><span th:text="${player.getCoin()}" th:id="coin">0</span> </label>
+<span th:each="card, cIndex : ${player.getHand()}" id = "playerCardArea">
+                    <img th:src="${card.getImgPath()}" th:id = "cardImg"> <!-- 여긴 수정필요할수도 -->
+                </span>
+<input class="how-bat" type="text" th:id="betting" style="width: 50px">
+<button class="btn btn-dark" type="button" th:id="button-betting">배팅</button>
+<button class="btn btn-success" type="button" th:id="button-hit">HIT</button>
+<button class="btn btn-danger" type="button" th:id="button-stop">STOP</button>
+<hr />
+<script>
+    var coinElement = document.getElementById('coin0');
+    if (coinElement) {
+        coinElement.textContent = updatedCoin;
+    }
+
+    document.getElementById('button-betting0').onclick = function() {
+        var value = document.getElementById('betting0');
+        stomp.send('/pub/blackjack/command', {},
+            JSON.stringify({
+                roomId: roomId,
+                sender: username,
+                command: "BET",
+                value : value.value,
+                playerIndex : ""
+            }))
+    };
+
+    document.getElementById('button-hit0').onclick = function() {
+        stomp.send('/pub/blackjack/command', {},
+            JSON.stringify({
+                roomId: roomId,
+                sender: username,
+                command: "HIT",
+                playerIndex : "",
+                cardImgPath : ""
+            }))
+    };
+
+    document.getElementById('button-stop0').onclick = function() {
+        stomp.send('/pub/blackjack/command', {},
+            JSON.stringify({
+                roomId: roomId,
+                sender: username,
+                command: "STOP",
+                playerIndex : ""
+            }))
+    };
+</script>
+</body>
+</html>
