@@ -10,14 +10,24 @@
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+
+    <style>
+        .garoDiv{
+            display: inline-block;
+            float: left;
+        }
+
+        .imgSize{
+            width: 100px;
+            height: 150px;
+        }
+    </style>
 </head>
 <body>
 <th:block th:fragment="content">
             <h1>[[${room.name}]]</h1> <hr />
-        <div id = "dealerArea">
-            Dealer's card image ( Dealer's Area )
+        <div id = "dealerArea" style="height: 200px">
             <button type="button" class="btn btn-warning" id = "button-start">게임 시작</button>
-            <hr/>
         </div>
         <div>
             <div id = "playerArea">
@@ -26,7 +36,7 @@
         </div>
 
         <div>
-                <div id = "chatArea" class="p-3 mb-2 bg-light text-dark" style="overflow-y: scroll; height: 200px"></div>
+                <div id = "chatArea" class="p-3 mb-2 bg-light text-dark" style="overflow-y: scroll; height: 300px; margin-top: 50px"></div>
                 <div class="input-group mb-3">
                     <input type="text" id="msg" class="form-control">
                     <div class="input-group-append">
@@ -74,6 +84,17 @@
                 console.log(content)
 
                 switch (command){
+                    case "START" : {
+                        str = "<div class='col-6'>";
+                        str += "<div class='alert alert-warning'>";
+                        str += "<b>" + "##Dealer : " + msg + "</b>";
+                        str += "</div></div>";
+                        $("#chatArea").append(str);
+                        addDealerArea(content);
+                        //displayImage(imgPath);
+                        scrollToBottom();
+                        break;
+                    }
                     case "BET" : {
                         str = "<div class='col-6'>";
                         str += "<div class='alert alert-warning'>";
@@ -91,6 +112,8 @@
                         str += "</div></div>";
                         $("#chatArea").append(str);
                         scrollToBottom();
+                        addCardArea(content);
+                        //isplayPlayerImage(content.cardImgPath)
 
                         break;
                     }
@@ -150,15 +173,15 @@
         function addPlayerToArea(content) {
             var playerArea = document.getElementById("playerArea");
             var playerDiv = document.createElement("div");
+            playerDiv.style.height = "150px"
                 playerDiv.innerHTML = `
                 <label><span>${content.sender}</span></label>
                 <label><span id="coin${content.playerIndex}">${content.value}</span></label>
-                <span id="playerCardArea${content.playerIndex}"></span>
+                <div id="playerCardArea${content.playerIndex}" class="garoDiv"></div>
                 <input class="how-bat" type="text" id="betting${content.playerIndex}" style="width: 50px">
                 <button class="btn btn-dark" type="button" id="button-betting${content.playerIndex}">배팅</button>
                 <button class="btn btn-success" type="button" id="button-hit${content.playerIndex}">HIT</button>
                 <button class="btn btn-danger" type="button" id="button-stop${content.playerIndex}">STOP</button>
-                <hr />
             `;
                 playerArea.appendChild(playerDiv);
 
@@ -224,6 +247,43 @@
             } else {
                 console.error('Element with id "coin-' + index + '" not found.');
             }
+        }
+
+        function displayImage(imagePath) {
+            var img = document.createElement("img");
+            img.src = imagePath;
+            img.style.widows = "150px"
+            document.getElementById("dealerArea").appendChild(img);
+        }
+
+        function displayPlayerImage(imagePath) {
+            var img = document.createElement("img");
+            img.src = imagePath;
+            document.getElementById("playerArea").appendChild(img);
+        }
+
+        function addDealerArea(content) {
+            var cardArea = document.getElementById("dealerArea");
+            var dealerDiv = document.createElement("span");
+            dealerDiv.style.display = "inline-block";
+            dealerDiv.style.float = "left";
+
+            dealerDiv.innerHTML = `
+                <img src = ${content.cardImgPath} class="imgSize">
+            `
+            cardArea.appendChild(dealerDiv);
+        }
+
+        function addCardArea(content) {
+            var cardArea = document.getElementById(`playerCardArea${content.playerIndex}`);
+            var cardDiv = document.createElement("span");
+            cardDiv.style.display = "inline-block";
+            cardDiv.style.float = "left";
+
+            cardDiv.innerHTML = `
+                <img src = ${content.cardImgPath} class="imgSize">
+            `
+            cardArea.appendChild(cardDiv); // 에러 지점
         }
 
     });

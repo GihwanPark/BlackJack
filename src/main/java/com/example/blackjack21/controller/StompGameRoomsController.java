@@ -21,7 +21,7 @@ public class StompGameRoomsController {
     private final SimpMessagingTemplate template;
     private final PlayerRepository playerRepository;
     private final DealerService dealerService;
-    public ArrayList<Card> deck = new ArrayList<>();
+    public static ArrayList<Card> deck = new ArrayList<>();
     public Player player = new Player();
     public List<Player> playerList = new ArrayList<>();
 
@@ -57,18 +57,28 @@ public class StompGameRoomsController {
         switch (message.getCommand()){
             case "START" : // 게임 시작, 카드 관련 초기화
                 deck = dealerService.initDeck(deck);
+                dealerService.give(message,deck);
+                message.setCommand("START");
+                template.convertAndSend("/sub/blackjack/room/" + message.getRoomId(), message);
+                dealerService.give(message, deck);
                 message.setMessage("게임을 시작합니다!");
-                message.setType("Dealer");
+                message.setCommand("START");
+                template.convertAndSend("/sub/blackjack/room/" + message.getRoomId(), message);
                 break;
 
             case "BET" :
                 player = playerRepository.findByPlayerName(message.getSender());
                 playerList = playerRepository.getAllPlayers();
                 dealerService.batting(message, player, playerList);
+
+                template.convertAndSend("/sub/blackjack/room/" + message.getRoomId(), message);
                 break;
 
             case "HIT" :
                 dealerService.give(message, deck);
+                message.setMessage(message.getSender() + "님 HIT!");
+
+                template.convertAndSend("/sub/blackjack/room/" + message.getRoomId(), message);
                 break;
 
             case "STOP" : // 그만 받기
@@ -80,6 +90,5 @@ public class StompGameRoomsController {
             default:
                 throw new IllegalArgumentException("Unknown command: " + message.getCommand());
         }
-        template.convertAndSend("/sub/blackjack/room/" + message.getRoomId(), message);
     }
 }

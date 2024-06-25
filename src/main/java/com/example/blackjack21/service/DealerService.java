@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class DealerService {
@@ -68,30 +69,46 @@ public class DealerService {
     }
 
     // 카드 나눠주기, 카드 자료형으로 반환
-    public void give(ChatMessage message, ArrayList<Card> deck){
-        int i = 0;
-        Card card; // 전달 잘 안되면 new 해보면 될듯 혹은 걍 deck.get(i) 형태로 작업
-        while(true){
-            i = (int)(Math.random() % 52);
-            if(deck.get(i).isStatus()) break;
+    public void give(ChatMessage message, ArrayList<Card> deck) {
+        Random random = new Random();
+        boolean hasAvailableCard = false;
+
+        // 사용 가능한 카드가 있는지 확인
+        for (Card card : deck) {
+            if (card.isStatus()) {
+                hasAvailableCard = true;
+                break;
+            }
         }
-        deck.get(i).setStatus(false);
-        card = deck.get(i);
-        message.setCardImgPath(card.getImgPath()); // null?
-        message.setMessage(message.getSender() + "님 HIT!");
-        message.setType("Dealer");
-        //return deck.get(i);
+
+        if (!hasAvailableCard) {
+            throw new IllegalStateException("No available cards in the deck");
+        }
+
+        int i;
+        while (true) {
+            i = random.nextInt(52);
+            Card card = deck.get(i);
+            if (card.isStatus()) {
+                card.setStatus(false);
+                message.setCardImgPath(card.getImgPath());
+                System.out.println(message.getCardImgPath()); // 로그 확인
+                message.setType("Dealer");
+                message.setCommand("HIT");
+                break;
+            }
+        }
     }
 
     public ArrayList<Card> initDeck(ArrayList<Card> deck){
         String[] shapes = {"h", "d", "c", "s"};
-        Card card = new Card();
         for(int i = 0; i < 4; i++){
             String shape = shapes[i];
             for(int j = 1; j <14; j++){
+                Card card = new Card();
                 card.setStatus(true);
                 card.setShape(shape);
-                card.setValue(i);
+                card.setValue(j);
                 card.setImgPath("/image/" + card.getValue() + card.getShape() + ".png");
 
                 deck.add(card);

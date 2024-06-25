@@ -8,6 +8,12 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <title>BlackJack</title>
+    <style>
+        html, body{width: 100%;}
+        .list-group { width: 100%; }
+        .list-group-item { width: 100%; }
+    </style>
+
 </head>
 <body>
 <ul class="nav nav-pills nav-fill">
@@ -25,7 +31,7 @@
     </li>
 </ul>
     <th:block th:fragment="content">
-        <div class="container">
+        <div class="container-fluid">
             <div>
                 <ul th:each="room, index : ${list}" class="list-group">
                     <li class="list-group-item" th:text="${index.index}">Room</li>
