@@ -73,31 +73,44 @@
                 const dealer = 'Dealer';
                 console.log(content)
 
-                if(writerType === dealer && command === "BET") {
-                    str = "<div class='col-6'>";
-                    str += "<div class='alert alert-warning'>";
-                    str += "<b>" + "##Dealer : " + msg + "</b>";
-                    str += "</div></div>";
-                    $("#chatArea").append(str);
+                switch (command){
+                    case "BET" : {
+                        str = "<div class='col-6'>";
+                        str += "<div class='alert alert-warning'>";
+                        str += "<b>" + "##Dealer : " + msg + "</b>";
+                        str += "</div></div>";
+                        $("#chatArea").append(str);
+                        scrollToBottom();
+                        updateCoinValue(content.playerIndex, content.value)
+                        break;
+                    }
+                    case "HIT" : {
+                        break;
+                    }
 
-                    updateCoinValue(content.playerIndex, content.value)
+                    case "STOP" : {
+                        break;
+                    }
+                    case "ENTER" : {
+                        str = "<div class='col-6'>";
+                        str += "<div class='alert alert-warning'>";
+                        str += "<b>" + "##Dealer : " + msg + "</b>";
+                        str += "</div></div>";
+                        $("#chatArea").append(str);
+                        scrollToBottom();
+                        addPlayerToArea(content);
+                        break;
+                    }
+                    default : {
+                        str = "<div class='col-6'>";
+                        str += "<div class='alert alert-secondary'>";
+                        str += "<b>" + writer + " : " + msg + "</b>";
+                        str += "</div></div>";
+                        $("#chatArea").append(str);
+                        scrollToBottom();
+                        break;
+                    }
                 }
-                else if(writerType === dealer && command === "ENTER"){
-                    str = "<div class='col-6'>";
-                    str += "<div class='alert alert-warning'>";
-                    str += "<b>" + "##Dealer : " + msg + "</b>";
-                    str += "</div></div>";
-                    $("#chatArea").append(str);
-                    addPlayerToArea(content);
-                }
-                else{
-                    str = "<div class='col-6'>";
-                    str += "<div class='alert alert-secondary'>";
-                    str += "<b>" + writer + " : " + msg + "</b>";
-                    str += "</div></div>";
-                    $("#chatArea").append(str);
-                }
-                scrollToBottom();
 
         }, function (error) {
             console.log("STOMP Connection Error: " + error);

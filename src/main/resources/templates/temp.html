@@ -54,6 +54,35 @@
                 playerIndex : ""
             }))
     };
+
+    if(command === "BET") {
+        str = "<div class='col-6'>";
+        str += "<div class='alert alert-warning'>";
+        str += "<b>" + "##Dealer : " + msg + "</b>";
+        str += "</div></div>";
+        $("#chatArea").append(str);
+
+        updateCoinValue(content.playerIndex, content.value)
+    }
+    else if(command === "HIT"){
+
+    }
+    else if(command === "ENTER"){
+        str = "<div class='col-6'>";
+        str += "<div class='alert alert-warning'>";
+        str += "<b>" + "##Dealer : " + msg + "</b>";
+        str += "</div></div>";
+        $("#chatArea").append(str);
+        addPlayerToArea(content);
+    }
+    else{
+        str = "<div class='col-6'>";
+        str += "<div class='alert alert-secondary'>";
+        str += "<b>" + writer + " : " + msg + "</b>";
+        str += "</div></div>";
+        $("#chatArea").append(str);
+    }
+    scrollToBottom();
 </script>
 </body>
 </html>
